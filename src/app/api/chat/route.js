@@ -3,11 +3,11 @@ import { askTeacher } from "@/services/ollama.service";
 
 export async function POST(req) {
   try {
-    const { message, history } = await req.json();
+    const { message, history, mode } = await req.json();
 
     console.log("📩 Message:", message);
 
-    const answer = await askTeacher(message, history);
+    const answer = await askTeacher(message, history, mode);
 
     console.log("✅ Response generated");
 

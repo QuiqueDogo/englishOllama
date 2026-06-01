@@ -1,11 +1,18 @@
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-export const useChatStore = create((set) => ({
+export const useChatStore = create(
+  persist(
+    (set) => ({
   messages: [],
   loading: false,
+
   mode: "grammar",
 
-  setMode: (mode) => set({ mode }),
+  setMode: (mode) =>
+    set({
+      mode,
+    }),
 
   addMessage: (message) =>
     set((state) => ({
@@ -21,4 +28,10 @@ export const useChatStore = create((set) => ({
     set({
       messages: [],
     }),
-}));
+    
+    }),
+    {
+      name: "english-ai-storage"
+    }
+  )
+);

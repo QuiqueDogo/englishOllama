@@ -1,4 +1,6 @@
+import ChatSidebar from "@/modules/chat/ChatSidebar";
 import ChatView from "@/modules/chat/ChatView";
+import { Col, Row } from "antd";
 
 export default function Home() {
   return (
@@ -9,11 +11,15 @@ export default function Home() {
         padding: 24,
       }}
     >
-      <h1>
-        English
-      </h1>
+<Row>
+  <Col span={6}>
+    <ChatSidebar />
+  </Col>
 
-      <ChatView />
+  <Col span={18}>
+    <ChatView />
+  </Col>
+</Row>
     </main>
   );
 }

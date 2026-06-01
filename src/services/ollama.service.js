@@ -1,12 +1,31 @@
 import { AI_CONFIG } from "@/config/ai.config";
-import { teacherPrompt } from "@/prompts/teacher.prompt";
+import { grammarPrompt } from "@/prompts/grammar.prompt";
+import { conversationPrompt } from "@/prompts/conversation.prompt";
+import { vocabularyPrompt } from "@/prompts/vocabulary.prompt";
+import { studyPlanPrompt } from "@/prompts/studyPlan.prompt";
 
-export async function askTeacher(message, history = []) {
+export async function askTeacher(message, history = [], mode = "grammar") {
+const promptMap = {
+  grammar: grammarPrompt,
+  conversation: conversationPrompt,
+  vocabulary: vocabularyPrompt,
+  "study-plan": studyPlanPrompt,
+};
+
+const maxTokensByMode = {
+  grammar: 80,
+  conversation: 120,
+  vocabulary: 150,
+  "study-plan": 400,
+};
+
+const currentPrompt =
+  promptMap[mode] || grammarPrompt;
 
   const ollamaMessages = [
   {
     role: "system",
-    content: teacherPrompt,
+    content: currentPrompt,
   },
   ...history.map((msg) => ({
     role: msg.role === "student"
@@ -32,7 +51,8 @@ console.dir(ollamaMessages, { depth: null });
   options: {
     temperature: AI_CONFIG.temperature,
     top_p: AI_CONFIG.top_p,
-    num_predict: AI_CONFIG.num_predict,
+    num_predict:
+  maxTokensByMode[mode] || 150,
   },    
   messages: ollamaMessages,
 //   messages: [

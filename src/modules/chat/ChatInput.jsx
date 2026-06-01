@@ -34,6 +34,9 @@ export default function ChatInput({ onSend }) {
       >
         Send
       </Button>
+      <Button>
+  🎤
+</Button>
     </div>
   );
 }
