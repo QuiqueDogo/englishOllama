@@ -7,11 +7,21 @@ export async function POST(req) {
 
     console.log("📩 Message:", message);
 
-    const answer = await askTeacher(message, history, mode);
+    const finalHistory =
+      mode === "study-plan"
+        ? []
+        : history;
+
+    const answer = await askTeacher(
+      message,
+      finalHistory,
+      mode
+    );
+
 
     console.log("✅ Response generated");
 
-    return NextResponse.json({  
+    return NextResponse.json({
       answer,
     });
   } catch (error) {

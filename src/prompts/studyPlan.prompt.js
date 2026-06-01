@@ -1,13 +1,7 @@
 export const studyPlanPrompt = `
-You are an English tutor.
+Return ONLY plain text.
 
-Create a complete study plan immediately.
-
-Never ask the user questions.
-
-If the user's current level is unknown, assume A2.
-
-Respond EXACTLY using this format:
+Format:
 
 Goal:
 ...
@@ -27,7 +21,8 @@ Exercises:
 Milestones:
 ...
 
-Do not add introductions.
-Do not add congratulations.
-Do not add extra sections.
+No markdown.
+No bullet explanations outside sections.
+No introductions.
+No congratulations.
 `;

@@ -5,38 +5,48 @@ import { vocabularyPrompt } from "@/prompts/vocabulary.prompt";
 import { studyPlanPrompt } from "@/prompts/studyPlan.prompt";
 
 export async function askTeacher(message, history = [], mode = "grammar") {
-const promptMap = {
-  grammar: grammarPrompt,
-  conversation: conversationPrompt,
-  vocabulary: vocabularyPrompt,
-  "study-plan": studyPlanPrompt,
-};
+  const promptMap = {
+    grammar: grammarPrompt,
+    conversation: conversationPrompt,
+    vocabulary: vocabularyPrompt,
+    "study-plan": studyPlanPrompt,
+  };
 
-const maxTokensByMode = {
-  grammar: 80,
-  conversation: 120,
-  vocabulary: 150,
-  "study-plan": 400,
-};
+  const maxTokensByMode = {
+    grammar: 80,
+    conversation: 120,
+    vocabulary: 150,
+    "study-plan": 400,
+  };
 
-const currentPrompt =
-  promptMap[mode] || grammarPrompt;
+  const historyMessages = history.map(
+    (msg) => ({
+      role:
+        msg.role === "student"
+          ? "user"
+          : "assistant",
+      content: msg.content,
+    })
+  );
+
+  const currentPrompt =
+    promptMap[mode] || grammarPrompt;
 
   const ollamaMessages = [
-  {
-    role: "system",
-    content: currentPrompt,
-  },
-  ...history.map((msg) => ({
-    role: msg.role === "student"
-      ? "user"
-      : "assistant",
-    content: msg.content,
-  })),
-];
+    {
+      role: "system",
+      content: currentPrompt,
+    },
 
-console.log("MESSAGES SENT TO OLLAMA:");
-console.dir(ollamaMessages, { depth: null });
+    ...historyMessages,
+
+    {
+      role: "user",
+      content: message,
+    },
+  ];
+  console.log("MESSAGES SENT TO OLLAMA:");
+  console.dir(ollamaMessages, { depth: null });
 
   const response = await fetch(
     "http://localhost:11434/api/chat",
@@ -46,46 +56,46 @@ console.dir(ollamaMessages, { depth: null });
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-  model: AI_CONFIG.model,
-  stream: false,
-  options: {
-    temperature: AI_CONFIG.temperature,
-    top_p: AI_CONFIG.top_p,
-    num_predict:
-  maxTokensByMode[mode] || 150,
-  },    
-  messages: ollamaMessages,
-//   messages: [
-//   {
-//     role: "user",
-//     content: "My name is luis",
-//   },
-// ],
-}),
+        model: AI_CONFIG.model,
+        stream: false,
+        options: {
+          temperature: AI_CONFIG.temperature,
+          top_p: AI_CONFIG.top_p,
+          num_predict:
+            maxTokensByMode[mode] || 150,
+        },
+        messages: ollamaMessages,
+        //   messages: [
+        //   {
+        //     role: "user",
+        //     content: "My name is luis",
+        //   },
+        // ],
+      }),
     }
   );
 
-//   const data = await response.json();
+  //   const data = await response.json();
 
 
-// return data.message.content;
+  // return data.message.content;
   console.log("Status:", response.status);
 
   const data = await response.json();
   console.log("OLLAMA RESPONSE:");
-console.dir(data, { depth: null });
-console.log("DONE REASON:");
-console.log(data.done_reason);
+  console.dir(data, { depth: null });
+  console.log("DONE REASON:");
+  console.log(data.done_reason);
 
-console.log("EVAL COUNT:");
-console.log(data.eval_count);
+  console.log("EVAL COUNT:");
+  console.log(data.eval_count);
 
 
- console.log("CONTENT:");
-console.log(data.message?.content);
+  console.log("CONTENT:");
+  console.log(data.message?.content);
 
-console.log("THINKING:");
-console.log(data.message?.thinking);
+  console.log("THINKING:");
+  console.log(data.message?.thinking);
 
-return data.message?.content || "[EMPTY RESPONSE]";
+  return data.message?.content || "[EMPTY RESPONSE]";
 }

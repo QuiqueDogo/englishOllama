@@ -23,54 +23,56 @@ export default function ChatView() {
   } = useChatStore();
   const bottomRef = useRef(null);
 
-const sendMessage = async (message) => {
-  const userMessage = {
-    role: "student",
-    content: message,
+  const sendMessage = async (message) => {
+    const userMessage = {
+      role: "student",
+      content: message,
+      mode
+    };
+
+    addMessage(userMessage);
+
+    setLoading(true);
+
+    try {
+      const history = [
+        ...messages,
+        userMessage,
+      ].slice(-10);
+
+      const response = await fetch("/api/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message,
+          history,
+          mode,
+        }),
+      });
+
+      const data = await response.json();
+      addMessage({
+        role: "teacher",
+        content: data.answer || "No response generated",
+        mode
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setLoading(false);
+    }
   };
-
-  addMessage(userMessage);
-
-  setLoading(true);
-
-  try {
-    const history = [
-      ...messages,
-      userMessage,
-    ].slice(-10);
-
-    const response = await fetch("/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        message,
-        history,
-        mode,
-      }),
-    });
-
-    const data = await response.json();
-addMessage({
-  role: "teacher",
-  content: data.answer || "No response generated",
-});
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setLoading(false);
-  }
-};
   const clearChat = useChatStore(
     (state) => state.clearChat
   );
 
   useEffect(() => {
-  bottomRef.current?.scrollIntoView({
-    behavior: "smooth",
-  });
-}, [messages.length, loading]);
+    bottomRef.current?.scrollIntoView({
+      behavior: "smooth",
+    });
+  }, [messages.length, loading]);
 
   return (
     <>
@@ -78,8 +80,8 @@ addMessage({
         <ChatHeader />
         <ModeSelector />
 
-<br />
-<br />
+        <br />
+        <br />
         <Button onClick={clearChat}>
           New Chat
         </Button>
@@ -90,10 +92,10 @@ addMessage({
           />
         ))}
 
-       {loading && (
-  <TypingIndicator />
-)}
-<div ref={bottomRef} />
+        {loading && (
+          <TypingIndicator />
+        )}
+        <div ref={bottomRef} />
       </div>
 
       <ChatInput onSend={sendMessage} />

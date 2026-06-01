@@ -1,6 +1,8 @@
 import { Avatar, Card, Flex } from "antd";
 import { useChatStore } from "@/store/chat.store";
 import VocabularyCard from "./VocabularyCard";
+import StudyPlanCard from "./StudyPlanCard";
+import { parseStudyPlan } from "@/utils/parseStudyPLan";
 
 function parseVocabulary(content = "") {
   const word =
@@ -31,16 +33,19 @@ function parseVocabulary(content = "") {
   };
 }
 
+
+
 export default function ChatMessage({
   role,
   content,
+  mode,
 }) {
   const isStudent =
     role === "student";
 
-  const mode = useChatStore(
-    (state) => state.mode
-  );
+  // const mode = useChatStore(
+  //   (state) => state.mode
+  // );
 
   const formattedContent =
     content
@@ -57,6 +62,14 @@ export default function ChatMessage({
     mode === "vocabulary" &&
     role === "teacher";
 
+  const isStudyPlan =
+    mode === "study-plan" &&
+    role === "teacher";
+
+  console.log("MODE:", mode);
+  console.log("ROLE:", role);
+  console.log("CONTENT:", content);
+
   if (isVocabulary) {
     const vocabulary =
       parseVocabulary(content);
@@ -64,6 +77,7 @@ export default function ChatMessage({
     if (!vocabulary.word) {
       return null;
     }
+
 
     return (
       <Flex
@@ -87,6 +101,42 @@ export default function ChatMessage({
       </Flex>
     );
   }
+
+  if (isStudyPlan) {
+    const plan = parseStudyPlan(content);
+
+    console.log("PLAN:");
+    console.dir(plan, { depth: null });
+
+    console.log("GOAL:", plan.goal);
+    console.log("CURRENT:", plan.currentLevel);
+    console.log("WEEKLY:", plan.weeklySchedule);
+    console.log("TOPICS:", plan.topics);
+    console.log("EXERCISES:", plan.exercises);
+    console.log("MILESTONES:", plan.milestones);
+    return (
+      <Flex
+        justify="flex-start"
+        style={{
+          marginBottom: 12,
+        }}
+      >
+        <Flex
+          gap={8}
+          align="start"
+        >
+          <Avatar>
+            AI
+          </Avatar>
+
+          <StudyPlanCard {...plan} />
+
+        </Flex>
+      </Flex>
+    );
+  }
+
+
 
   return (
     <Flex
